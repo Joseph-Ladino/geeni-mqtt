@@ -21,12 +21,18 @@ var jamesLights = new Switch3Way(
     true
 );
 
-async function test() {
-    mainLights.connect();
+function test() {
+    // mainLights.connect()
+    // .then(_ => jamesLights.connect())
+    // .then(_ => monitorPlug.connect())
+    // .then(_ => overheadLights.connect())
+    // .then(_ => fanPlug.connect());
+
     jamesLights.connect();
+    mainLights.connect();
+    fanPlug.connect();
     monitorPlug.connect();
     overheadLights.connect();
-    fanPlug.connect();
 }
 
-MqttDevice.client.on('connect', _ => test());
+MqttDevices.client.on('connect', _ => test());
