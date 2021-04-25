@@ -1,13 +1,10 @@
 const { readFileSync } = require("fs");
-const mqttDevices = require("./mqttDevices");
 
 // const TuyaDevice = require("./tuyaDevices");
-const MqttDevice = require("./mqttDevices");
+const MqttDevices = require("./mqttDevices");
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
 
-const Plug = MqttDevice.Plug;
-const Switch = MqttDevice.Switch;
-const Switch3 = MqttDevice.Switch3Way;
+const {Plug, Switch, Switch3Way} = MqttDevices;
 
 var mainLights = new Switch(myDevices.mainLights.id, myDevices.mainLights.key, "main lights", true);
 var overheadLights = new Switch(myDevices.overheadLights.id, myDevices.overheadLights.key, "overhead lights", true);
@@ -15,7 +12,7 @@ var overheadLights = new Switch(myDevices.overheadLights.id, myDevices.overheadL
 var monitorPlug = new Plug(myDevices.monitor.id, myDevices.monitor.key, "monitor", true);
 var fanPlug = new Plug(myDevices.fan.id, myDevices.fan.key, "fan", true);
 
-var jamesLights = new Switch3(
+var jamesLights = new Switch3Way(
     myDevices.jamesSwitch1.id,
     myDevices.jamesSwitch1.key,
     myDevices.jamesSwitch2.id, 
