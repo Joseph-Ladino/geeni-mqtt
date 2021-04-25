@@ -1,6 +1,6 @@
 const { readFileSync } = require("fs");
 
-const TuyaDevice = require("./tuyaDevices");
+// const TuyaDevice = require("./tuyaDevices");
 const MqttDevice = require("./mqttDevices");
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
 
