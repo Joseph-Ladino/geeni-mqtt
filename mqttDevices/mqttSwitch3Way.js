@@ -7,7 +7,7 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
 
         this.mqttDiscovery = discovery;
 
-        this.mqttBaseTopic = `homeassistant/switch/${this.deviceName}`;
+        this.mqttBaseTopic = `homeassistant/switch/${this.deviceName.replace(' ', "_")}`;
         this.mqttStateTopic = this.mqttBaseTopic + "/state";
         this.mqttCommandTopic = this.mqttStateTopic + "/set";
         this.mqttAvailabilityTopic = this.mqttStateTopic + "/available";
