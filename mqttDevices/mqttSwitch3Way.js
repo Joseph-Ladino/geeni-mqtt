@@ -4,9 +4,8 @@ const TuyaSwitch3Way = require("../tuyaDevices/tuyaSwitch3Way");
 class MqttSwitch3Way extends TuyaSwitch3Way {
     constructor(switch1Id, switch1Key, switch2Id, switch2Key, deviceName = null, discovery = false) {
         super(switch1Id, switch1Key, switch2Id, switch2Key, deviceName);
-
-        this.mqttDiscovery = discovery;
-
+        
+        this.mqttIcon = "mdi:light-switch";
         this.mqttBaseTopic = `homeassistant/switch/${this.deviceName.replace(' ', "_")}`;
         this.mqttStateTopic = this.mqttBaseTopic + "/state";
         this.mqttCommandTopic = this.mqttStateTopic + "/set";
@@ -14,6 +13,8 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
 
         client.subscribe(this.mqttCommandTopic);
         client.on("message", (topic, msg) => this.onMqttMessage(topic, msg));
+
+        if(discovery) this.publishMqttDiscovery();
     }
 
     onSwitchData() {
@@ -49,7 +50,7 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
         client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF");
     }
 
-    publishMqttDiscover() {
+    publishMqttDiscovery() {
         const configTopic = this.mqttBaseTopic + "/config";
 
         const configData = {
@@ -59,6 +60,8 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
             state_topic: this.mqttStateTopic,
             command_topic: this.mqttCommandTopic,
             availability_topic: this.mqttAvailabilityTopic,
+
+            icon: this.mqttIcon,
 
             payload_on: "ON",
             payload_off: "OFF",
