@@ -1,0 +1,16 @@
+{
+  "name": "mqtt-tuya-controller",
+  "version": "1.0.0",
+  "description": "for my lighbulbs n shit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "mqtt": "^4.2.6",
+    "tuyapi": "github:codetheweb/tuyapi"
+  }
+}

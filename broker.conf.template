@@ -1,0 +1,6 @@
+{
+    "host": "mqtt broker host",
+    "user": "mqtt broker username",
+    "pass": "mqtt broker password",
+    "clientId": "mqtt broker clientId"
+}
