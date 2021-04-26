@@ -16,22 +16,27 @@ class MqttSwitch extends TuyaSwitch {
 
         if(discovery) this.publishMqttDiscovery();
     }
-
+    
+    
+    onDisconnected() {
+        console.log(`${this.deviceName}: DISCONNECTED FROM SWITCH`);
+    }
+    
     onConnected() {
         console.log(`${this.deviceName}: CONNECTED TO SWITCH`);
-
+    }
+    
+    // override to ensure the state is set before publishing to mqtt
+    _onDisconnected() {
+        this.state.available = false;
+        this.publishMqttAvailability();
+        this.reconnect();
+    }
+    
+    _onConnected() {
         this.state.available = true;
         this.publishMqttAvailability();
         this.publishMqttState();
-    }
-
-    onDisconnected() {
-        console.log(`${this.deviceName}: DISCONNECTED FROM SWITCH`);
-
-        this.state.available = false;
-        this.publishMqttAvailability();
-
-        this.connect();
     }
 
     onData(data) {

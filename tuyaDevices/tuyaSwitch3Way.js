@@ -1,4 +1,3 @@
-const mqtt = require("mqtt");
 const Switch = require("./tuyaSwitch");
 
 class Switch3Way {
@@ -43,8 +42,9 @@ class Switch3Way {
         if(this.off) {
             this.state.on = true;
             
-            return Promise.all([this.switches[0].turnOn(), this.switches[1].turnOn()]);
-        } 
+            return this.switches[1].set(this.switches[0].on);
+        }
+
         return Promise.resolve();
     }
 
@@ -52,7 +52,7 @@ class Switch3Way {
         if(this.on) {
             this.state.on = false;
             
-            return Promise.all([this.switches[0].turnOn(), this.switches[1].turnOff()]);
+            return this.switches[1].set(this.switches[0].off);
         }
         
         return Promise.resolve();
@@ -64,9 +64,12 @@ class Switch3Way {
 
     async connect() {
         // for whatever reason, connecting the 2nd switch before the first one fixes connection errors
-        return this.switches[1].connect()
-        .then(_ => this.switches[0].connect())
-        .then(_ => this.onConnected());
+        // return this.switches[1].connect()
+        // .then(_ => this.switches[0].connect())
+        // .then(_ => this.onConnected());
+
+        // connect to both at the same time
+        return Promise.all([this.switches[0].connect(), this.switches[1].connect()]).then(_ => this.onConnected());
     }
 
     onSwitchData() {

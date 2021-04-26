@@ -2,8 +2,8 @@ const { readFileSync } = require("fs");
 
 // const TuyaDevice = require("./tuyaDevices");
 const MqttDevices = require("./mqttDevices");
+const MqttClient = Mqtt.client;
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
-
 const {Plug, Switch, Switch3Way} = MqttDevices;
 
 var mainLights = new Switch(myDevices.mainLights.id, myDevices.mainLights.key, "main lights", true);
@@ -21,13 +21,7 @@ var jamesLights = new Switch3Way(
     true
 );
 
-function test() {
-    // mainLights.connect()
-    // .then(_ => jamesLights.connect())
-    // .then(_ => monitorPlug.connect())
-    // .then(_ => overheadLights.connect())
-    // .then(_ => fanPlug.connect());
-
+function main() {
     jamesLights.connect();
     mainLights.connect();
     fanPlug.connect();
@@ -35,4 +29,4 @@ function test() {
     overheadLights.connect();
 }
 
-MqttDevices.client.on('connect', _ => test());
+MqttClient.on('connect', _ => main());

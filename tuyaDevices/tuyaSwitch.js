@@ -38,11 +38,13 @@ class Switch extends TuyaGeneric {
     async set(on) {
         return (on ? this.turnOn() : this.turnOff());
     }
+    
+    onDisconnected() {
+        console.log(`${this.deviceName}: DISCONNECTED FROM SWITCH, ATTEMPTING RECONNECT...`);
+    }
 
     onConnected() {
         console.log(`${this.deviceName}: CONNECTED TO SWITCH`);
-
-        this.state.available = true;
     }
 
     onData(data) {
