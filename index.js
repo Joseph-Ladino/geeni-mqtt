@@ -2,7 +2,7 @@ const { readFileSync } = require("fs");
 
 // const TuyaDevice = require("./tuyaDevices");
 const MqttDevices = require("./mqttDevices");
-const MqttClient = Mqtt.client;
+const MqttClient = MqttDevices.client;
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
 const {Plug, Switch, Switch3Way} = MqttDevices;
 

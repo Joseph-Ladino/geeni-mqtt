@@ -1,8 +1,8 @@
-const TuyaGeneric = require("./generic");
+const TuyaSwitch = require("./tuyaSwitch");
 
 // INCOMPLETE, TODO: FINISH
 
-class RGBLight extends TuyaGeneric {
+class RGBLight extends TuyaSwitch {
     constructor(deviceId, deviceKey) {
         super(deviceId, deviceKey);
     }
