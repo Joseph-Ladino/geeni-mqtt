@@ -18,7 +18,7 @@ class TuyaGeneric {
         this.device.on('connected', _ => this._onConnected());  // background handler to adjust availability state
         
         this.device.on('error', err => this.onError(err));
-        this.device.on('data', data => this.onData(data));
+        this.device.on('data', (data, commandByte, packetN) => this.onData(data, commandByte, packetN));
 
         this.state = { available: false };
     }

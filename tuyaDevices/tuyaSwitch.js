@@ -4,7 +4,7 @@ class Switch extends TuyaGeneric {
     constructor(deviceId, deviceKey, deviceName = null) {
         super(deviceId, deviceKey, deviceName);
 
-        this.state = { on: false };
+        this.state = { available: false, on: false };
     }
 
     get on() {
