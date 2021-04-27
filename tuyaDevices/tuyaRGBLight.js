@@ -33,7 +33,7 @@ function hsvToRgb(h, s, v) {
 }
 
 function toTuyaHex(color, brightness) {
-    const rgb = hsvToRgb(color.h, color.s, brightness).map(c => Math.round(c).toString(16).padStart(2, '0')).join('');
+    const rgb = hsvToRgb(color.h, color.s, brightness).map(c => Math.floor(c).toString(16).padStart(2, '0')).join('');
     const hsv = color.h.toString(16).padStart(4, '0') + color.s.toString(16).padStart(2, '0') + brightness.toString(16).padStart(2, '0');
 
     return rgb + hsv;
@@ -137,3 +137,4 @@ class RGBLight extends TuyaSwitch {
 
 
 module.exports = RGBLight;
+module.exports.toTuyaHex = toTuyaHex;

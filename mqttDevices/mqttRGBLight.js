@@ -46,19 +46,30 @@ class MqttRGBLight extends TuyaRGBLight {
         if(topic == this.mqttCommandTopic) {
             const payload = JSON.parse(msg.toString());
             
-            this.set(payload.state == "ON");
-
-            // map HA brightness (5 - 255) to Tuya brightness (25 - 255)
-            if('brightness' in payload) this.setBrightness((payload.brightness - 5) * 230 / 250 + 25);
+            // state is always sent
+            var data = { '1': payload.state == "ON" };
             
-            if('color' in payload) {
-                const color = payload.color;
-                if(color.s < 10) return this.setMode('white').then(_ => this.setColor({ h: 0, s: 0 }));
-                
-                // map HA saturationg (0 - 100) to Tuya saturation (0 - 255)
-                this.setColor({ h: color.h, s: color.s * 2.55 }).then(_ => this.setMode('colour'));
-            }
+            // map HA brightness to Tuya brightness 
+            const adjustedBrightness = ('brightness' in payload) ? Math.floor((payload.brightness - 5) * 230 / 250 + 25) : this.brightness;
+            
+            // map HA saturation to Tuya saturation
+            const adjustedColor = ('color' in payload) ? { h: Math.floor(payload.color.h), s: Math.floor(payload.color.s * 2.55) } : this.color;
+            
+            // allow for white mode when low saturation
+            const adjustedMode = (adjustedColor.s < 26) ? 'white' : 'colour';
+            
 
+            if(adjustedMode != this.mode) data['2'] = adjustedMode;
+
+            // set stored color to white if color mode is changed to white
+            if(adjustedMode == 'white') { data['3'] = adjustedBrightness; this.state.color = { h: 0, s: 0 }; }
+            else data['5'] = TuyaRGBLight.toTuyaHex(adjustedColor, adjustedBrightness);
+
+            
+            this.device.set({
+                multiple: true,
+                data: data
+            });
         } else if(topic == client.HAStatusTopic) {
             this.publishMqttAvailability();
         }
