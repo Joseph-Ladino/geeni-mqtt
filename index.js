@@ -25,27 +25,12 @@ var jamesLights = new Switch3Way(
 var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", true);
 
 function main() {
-    // jamesLights.connect();
-    // mainLights.connect();
-    // fanPlug.connect();
-    // monitorPlug.connect();
-    // overheadLights.connect();
-
-    async function wait(ms) {
-        return new Promise(res => setTimeout(res, 2000));
-    }
-
-    lamp.connect()
-        .then(_ => lamp.turnOn())
-        // .then(_ => lamp.setBrightness(255))
-        // .then(_ => lamp.setMode('white'))
-        // .then(_ => wait(200))
-        // .then(_ => lamp.setColor({ h: 256, s: 0.92 * 255, v: 125 }))
-        // .then(_ => lamp.setMode('colour'))
-        // .then(_ => wait(500))
-        // .then(_ => lamp.setMode('white'))
-        // .then(_ => wait(2000))
-        // .then(_ => lamp.turnOff());
+    jamesLights.connect();
+    mainLights.connect();
+    fanPlug.connect();
+    monitorPlug.connect();
+    overheadLights.connect();
+    lamp.connect();
 }
 
 MqttClient.on('connect', _ => main());
