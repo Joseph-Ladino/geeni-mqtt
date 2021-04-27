@@ -2,5 +2,6 @@ module.exports = {
     client: require("./mqttClient"),
     Switch: require("./mqttSwitch"),
     Switch3Way: require("./mqttSwitch3Way"),
-    Plug: require("./mqttPlug")
+    RGBLight: require("./mqttRGBLight"),
+    Plug: require("./mqttPlug"),
 };

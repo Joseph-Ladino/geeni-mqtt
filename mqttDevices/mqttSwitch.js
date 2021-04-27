@@ -47,6 +47,8 @@ class MqttSwitch extends TuyaSwitch {
     async onMqttMessage(topic, msg) {
         if(topic == this.mqttCommandTopic) {
             this.set(msg == "ON"); // tuya detects the change and calls onData which publishes state to MQTT
+        } else if(topic == client.HAStatusTopic) {
+            this.publishMqttAvailability();
         }
     }
 

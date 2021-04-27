@@ -41,8 +41,8 @@ function toTuyaHex(color, brightness) {
 
 function extractHueSat(str) {
     return {
-        h: parseInt(str.substr(7, 2), 16),
-        s: parseInt(str.substr(9, 2), 16),
+        h: parseInt(str.substr(6, 4), 16), // note to self: 360 > 255 meaning hue takes 2 bytes or 4 hex chars
+        s: parseInt(str.substr(10, 2), 16),
     }
 }
 
@@ -110,6 +110,10 @@ class RGBLight extends TuyaSwitch {
     }
 
     // TODO: test the set functions
+
+    onDisconnected() {
+        console.log(`${this.deviceName}: DISCONNECTED FROM LIGHT`);
+    }
 
     onConnected() {
         console.log(`${this.deviceName}: CONNECTED TO LIGHT`);

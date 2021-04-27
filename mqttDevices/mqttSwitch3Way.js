@@ -39,6 +39,8 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
     async onMqttMessage(topic, msg) {
         if(topic == this.mqttCommandTopic) {
             this.set(msg == "ON"); // see comment in MqttSwitch#onMqttMessage (mqttSwitch.js)
+        } else if(topic == client.HAStatusTopic) {
+            this.publishMqttAvailability();
         }
     }
 

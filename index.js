@@ -4,8 +4,8 @@ const { readFileSync } = require("fs");
 const MqttDevices = require("./mqttDevices");
 const MqttClient = MqttDevices.client;
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
-const {Plug, Switch, Switch3Way} = MqttDevices;
-const {RGBLight} = require("./tuyaDevices");
+const {Plug, Switch, Switch3Way, RGBLight} = MqttDevices;
+
 
 var mainLights = new Switch(myDevices.mainLights.id, myDevices.mainLights.key, "main lights", true);
 var overheadLights = new Switch(myDevices.overheadLights.id, myDevices.overheadLights.key, "overhead lights", true);
@@ -22,7 +22,7 @@ var jamesLights = new Switch3Way(
     true
 );
 
-var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key);
+var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", true);
 
 function main() {
     // jamesLights.connect();
@@ -37,15 +37,15 @@ function main() {
 
     lamp.connect()
         .then(_ => lamp.turnOn())
-        .then(_ => lamp.setBrightness(255))
-        .then(_ => lamp.setMode('white'))
-        .then(_ => wait(200))
-        .then(_ => lamp.setColor({ h: 256, s: 0.92 * 255, v: 125 }))
-        .then(_ => lamp.setMode('colour'))
-        .then(_ => wait(500))
-        .then(_ => lamp.setMode('white'))
-        .then(_ => wait(2000))
-        .then(_ => lamp.turnOff());
+        // .then(_ => lamp.setBrightness(255))
+        // .then(_ => lamp.setMode('white'))
+        // .then(_ => wait(200))
+        // .then(_ => lamp.setColor({ h: 256, s: 0.92 * 255, v: 125 }))
+        // .then(_ => lamp.setMode('colour'))
+        // .then(_ => wait(500))
+        // .then(_ => lamp.setMode('white'))
+        // .then(_ => wait(2000))
+        // .then(_ => lamp.turnOff());
 }
 
 MqttClient.on('connect', _ => main());
