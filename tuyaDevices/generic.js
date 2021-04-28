@@ -33,8 +33,8 @@ class TuyaGeneric {
         return this.device.find()
             .then(_ => this.device.connect())
             .catch(reason => {
-                console.log(`${this.deviceName}: CONNECTION TO DEVICE FAILED: ${reason}`);
-                this.device.disconnect();
+                console.log("CONNECTION TO DEVICE FAILED :(");
+                this.onError(reason);
             });
     }
 
@@ -66,6 +66,9 @@ class TuyaGeneric {
     
     onError(err) {
         console.log(`${this.deviceName}: ERROR WHILE CONNECTING: ${err}`);
+
+        if(this.device.isConnected()) this.device.disconnect();
+        this.reconnect();
     }
 }
 

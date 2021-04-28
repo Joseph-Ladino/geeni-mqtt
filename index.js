@@ -23,14 +23,24 @@ var jamesLights = new Switch3Way(
 );
 
 var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", true);
+var dadLamp = new RGBLight(myDevices.deskLamp.id, myDevices.deskLamp.key, "dad lamp", true);
+var jamesLamp = new RGBLight(myDevices.jamesLamp.id, myDevices.jamesLamp.key, "night light", true);
+
+var devices = [
+    jamesLights,
+    mainLights,
+    overheadLights,
+    jamesLamp,
+    dadLamp,
+    lamp,
+    monitorPlug,
+    fanPlug
+]
 
 function main() {
-    jamesLights.connect();
-    mainLights.connect();
-    fanPlug.connect();
-    monitorPlug.connect();
-    overheadLights.connect();
-    lamp.connect();
+    for(var d of devices) {
+        d.connect();
+    }
 }
 
 MqttClient.on('connect', _ => main());

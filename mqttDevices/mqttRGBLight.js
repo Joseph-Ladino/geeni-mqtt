@@ -70,7 +70,10 @@ class MqttRGBLight extends TuyaRGBLight {
                 data: data
             });
         } else if(topic == client.HAStatusTopic) {
-            this.publishMqttAvailability();
+            setTimeout(_ => {
+                this.publishMqttDiscovery();
+                this.publishMqttState();
+            }, 1000);
         }
     }
 
