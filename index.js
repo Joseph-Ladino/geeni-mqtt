@@ -27,14 +27,14 @@ var dadLamp = new RGBLight(myDevices.deskLamp.id, myDevices.deskLamp.key, "dad l
 var jamesLamp = new RGBLight(myDevices.jamesLamp.id, myDevices.jamesLamp.key, "night light", true);
 
 var devices = [
-    jamesLights,
-    mainLights,
-    overheadLights,
+    // jamesLights,
+    // mainLights,
+    // overheadLights,
     jamesLamp,
     dadLamp,
     lamp,
-    monitorPlug,
-    fanPlug
+    // monitorPlug,
+    // fanPlug
 ]
 
 function main() {
