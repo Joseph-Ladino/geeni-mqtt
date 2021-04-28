@@ -34,13 +34,13 @@ class TuyaGeneric {
             .then(_ => this.device.connect())
             .catch(reason => {
                 console.log(`${this.deviceName}: CONNECTION TO DEVICE FAILED: ${reason}`);
-                this.reconnect();
+                this.device.disconnect();
             });
     }
 
     async reconnect() {
         console.log(`${this.deviceName}: ATTEMPTING RECONNECT IN 10 SECONDS`);
-        setTimeout(_ => this.connect(), 10000);
+        setTimeout(_ => { if(!this.device.isConnected()) this.connect(); }, 10000);
     }
 
     onDisconnected() {

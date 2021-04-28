@@ -124,7 +124,9 @@ class RGBLight extends TuyaSwitch {
 
         if('2' in dps) this.state.mode = dps['2'];
         if('3' in dps) this.state.brightness = dps['3'];
-        if('5' in dps) this.state.color = extractHueSat(dps['5']);
+
+        // prevent sending color data on first get
+        if('5' in dps && this.mode == 'colour') this.state.color = extractHueSat(dps['5']); 
     }
 
     onData(data, cmd) {

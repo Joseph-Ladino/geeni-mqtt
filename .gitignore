@@ -3,3 +3,4 @@ my_devices.conf
 ./tuyaDevices/tuyaRGBLight.js
 mqttauto.service
 launch.sh
+launch.js

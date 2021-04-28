@@ -18,9 +18,8 @@ class MqttRGBLight extends TuyaRGBLight {
 
     _onDisconnected() {
         super._onDisconnected();
-
+        
         this.publishMqttAvailability();
-        this.reconnect();
     }
     
     _onConnected() {
