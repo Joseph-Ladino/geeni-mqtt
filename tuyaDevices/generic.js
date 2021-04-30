@@ -21,6 +21,9 @@ class TuyaGeneric {
         this.device.on('data', (data, commandByte, packetN) => this.onData(data, commandByte, packetN));
 
         this.state = { available: false };
+
+        // prevent reconnection loops
+        this.reconnecting = false;
     }
 
     get available() {
@@ -32,15 +35,21 @@ class TuyaGeneric {
 
         return this.device.find()
             .then(_ => this.device.connect())
+            .then(_ => { this.reconnecting = false; })
             .catch(reason => {
-                console.log("CONNECTION TO DEVICE FAILED :(");
-                this.onError(reason);
+                console.log("CONNECTION TO DEVICE FAILED: ", reason);
+                this.attemptReconnect();
             });
     }
 
-    async reconnect() {
-        console.log(`${this.deviceName}: ATTEMPTING RECONNECT IN 10 SECONDS`);
-        setTimeout(_ => { if(!this.device.isConnected()) this.connect(); }, 10000);
+    async attemptReconnect() {
+        if(!this.reconnecting) {
+            console.log(`${this.deviceName}: ATTEMPTING RECONNECT IN 10 SECONDS`);
+            
+            this.reconnecting = true;
+            
+            setTimeout(_ => { if(!this.device.isConnected()) this.connect(); }, 10000);
+        }
     }
 
     onDisconnected() {
@@ -53,7 +62,7 @@ class TuyaGeneric {
 
     _onDisconnected() {      
         this.state.available = false;
-        this.reconnect();
+        this.attemptReconnect();
     }
 
     _onConnected() {
@@ -67,8 +76,7 @@ class TuyaGeneric {
     onError(err) {
         console.log(`${this.deviceName}: ERROR WHILE CONNECTING: ${err}`);
 
-        if(this.device.isConnected()) this.device.disconnect();
-        this.reconnect();
+        this.attemptReconnect();
     }
 }
 

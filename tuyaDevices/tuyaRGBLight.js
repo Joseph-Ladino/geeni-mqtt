@@ -133,12 +133,10 @@ class RGBLight extends TuyaSwitch {
 
         // prevent sending color data on first get
         if('5' in dps && this.mode == 'colour') this.state.color = extractHueSat(dps['5']);
-
-        console.log(this.state)
     }
 
     onData(data, cmd) {
-        this.state.on = data.dps['1'];
+        if('1' in data.dps) this.state.on = data.dps['1'];
 
         // cmd == 10 is true on first call after connect
         if(cmd == 10) this.onRefresh(data);

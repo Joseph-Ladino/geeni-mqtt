@@ -63,11 +63,6 @@ class Switch3Way {
     }
 
     async connect() {
-        // for whatever reason, connecting the 2nd switch before the first one fixes connection errors
-        // return this.switches[1].connect()
-        // .then(_ => this.switches[0].connect())
-        // .then(_ => this.onConnected());
-
         // connect to both at the same time
         return Promise.all([this.switches[0].connect(), this.switches[1].connect()]).then(_ => this.onConnected());
     }

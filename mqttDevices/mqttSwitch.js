@@ -30,7 +30,7 @@ class MqttSwitch extends TuyaSwitch {
     _onDisconnected() {
         this.state.available = false;
         this.publishMqttAvailability();
-        this.reconnect();
+        this.attemptReconnect();
     }
     
     _onConnected() {
@@ -40,7 +40,7 @@ class MqttSwitch extends TuyaSwitch {
     }
 
     onData(data) {
-        this.state.on = data.dps['1'];
+        if('1' in data.dps) this.state.on = data.dps['1'];
         this.publishMqttState();
     }
 
