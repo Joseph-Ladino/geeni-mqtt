@@ -35,9 +35,9 @@ class TuyaGeneric {
 
         return this.device.find()
             .then(_ => this.device.connect())
-            .then(_ => { this.reconnecting = false; })
-            .catch(reason => {
-                console.log("CONNECTION TO DEVICE FAILED: ", reason);
+            // .then(_ => { this.reconnecting = false; })
+            .catch(err => {
+                console.log("CONNECTION TO DEVICE FAILED: ", err.message);
                 this.attemptReconnect();
             });
     }
@@ -47,8 +47,9 @@ class TuyaGeneric {
             console.log(`${this.deviceName}: ATTEMPTING RECONNECT IN 10 SECONDS`);
             
             this.reconnecting = true;
+            this.device.disconnect();
             
-            setTimeout(_ => { if(!this.device.isConnected()) this.connect(); }, 10000);
+            setTimeout(_ => { this.reconnecting = false; this.connect(); }, 10000);
         }
     }
 
