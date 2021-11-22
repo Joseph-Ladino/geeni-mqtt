@@ -62,6 +62,12 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
             name: this.deviceName,
             unique_id: this.deviceId,
             
+            device: {
+                name: this.deviceName,
+                identifiers: this.deviceId,
+                connections: [["ip", this.device.device.ip]],
+            },
+
             state_topic: this.mqttStateTopic,
             command_topic: this.mqttCommandTopic,
             availability_topic: this.mqttAvailabilityTopic,

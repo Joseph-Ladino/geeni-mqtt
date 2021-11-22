@@ -2,7 +2,7 @@ const client = require("./mqttClient");
 const TuyaIonvac = require("../tuyaDevices/tuyaIonvac");
 
 class MqttIonvac extends TuyaIonvac {
-    constructor(deviceId, deviceKey, deviceName = null) {
+    constructor(deviceId, deviceKey, deviceName = null, discover = false) {
         super(deviceId, deviceKey, deviceName);
         
         this.mqttIcon = "mdi:robot-vacuum";
@@ -38,6 +38,8 @@ class MqttIonvac extends TuyaIonvac {
         client.subscribe(this.mqttSendCommandTopic);
         client.subscribe(this.mqttSetFanSpeedTopic);
         client.on("message", (topic, msg) => this.onMqttMessage(topic, msg));
+
+        if(discover) this.publishMqttDiscovery();
     }
 
     onDisconnected() {
@@ -46,7 +48,6 @@ class MqttIonvac extends TuyaIonvac {
     
     onConnected() {
         console.log(`${this.deviceName}: CONNECTED TO VACUUM`);
-        this.publishMqttDiscovery();
     }
     
     // override to ensure the state is set before publishing to mqtt
@@ -95,7 +96,7 @@ class MqttIonvac extends TuyaIonvac {
 
     async onMqttMessage(topic, msg) {
         msg = msg.toString();
-        console.log(topic, msg);
+        // console.log(topic, msg);
 
         switch(topic) {
             case this.mqttSetFanSpeedTopic:
@@ -133,7 +134,6 @@ class MqttIonvac extends TuyaIonvac {
             name: this.deviceName,
             unique_id: this.deviceId,
             icon: this.mqttIcon,
-
             
             state_topic: this.mqttStateTopic,
             command_topic: this.mqttCommandTopic,
@@ -154,7 +154,7 @@ class MqttIonvac extends TuyaIonvac {
             ],
         };
 
-        client.publish(configTopic, JSON.stringify(configData));
+        client.publish(configTopic, JSON.stringify(configData), { retain: true });
     }
 }
 

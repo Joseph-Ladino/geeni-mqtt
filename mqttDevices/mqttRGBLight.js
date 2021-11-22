@@ -12,6 +12,7 @@ class MqttRGBLight extends TuyaRGBLight {
 
         client.subscribe(this.mqttCommandTopic);
         client.on("message", (topic, msg) => this.onMqttMessage(topic, msg));
+        client.on("dp-refresh", (data, commandByte, packetN) => this.onRefresh(data, commandByte, packetN));
 
         if(discovery) this.publishMqttDiscovery();
     }
@@ -45,11 +46,22 @@ class MqttRGBLight extends TuyaRGBLight {
         if(topic == this.mqttCommandTopic) {
             const payload = JSON.parse(msg.toString());
             
-            // state is always sent
-            var data = { '1': payload.state == "ON" };
+            const { power, mode, brightness, color } = this.dpsMap;
+
+            var data = {};
             
+            // state is always sent
+            data[power] = payload.state == "ON";
+
             // map HA brightness to Tuya brightness 
-            const adjustedBrightness = ('brightness' in payload) ? TuyaRGBLight.clamp(Math.floor((payload.brightness) * 230 / 255 + 25), 25, 255) : this.brightness;
+            const adjustedBrightness = ('brightness' in payload) 
+            ? TuyaRGBLight.clamp(
+                Math.floor(
+                    (payload.brightness) * (this.maxBrightness - this.minBrightness) / this.maxBrightness + this.minBrightness),
+                    this.minBrightness,
+                    this.maxBrightness
+                )
+            : this.brightness;
             
             // map HA saturation to Tuya saturation
             const adjustedColor = ('color' in payload) ? { h: Math.floor(payload.color.h), s: Math.floor(payload.color.s * 2.55) } : this.color;
@@ -58,11 +70,11 @@ class MqttRGBLight extends TuyaRGBLight {
             const adjustedMode = (adjustedColor.s < 26) ? 'white' : 'colour';
             
 
-            if(adjustedMode != this.mode) data['2'] = adjustedMode;
+            if(adjustedMode != this.mode) data[mode] = adjustedMode;
 
             // set stored color to white if color mode is changed to white
-            if(adjustedMode == 'white') { data['3'] = adjustedBrightness; this.state.color = { h: 0, s: 0 }; }
-            else data['5'] = TuyaRGBLight.toTuyaHex(adjustedColor, adjustedBrightness);
+            if(adjustedMode == 'white') { data[brightness] = adjustedBrightness; this.state.color = { h: 0, s: 0 }; }
+            else data[color] = TuyaRGBLight.toTuyaHex(adjustedColor, adjustedBrightness);
 
             // ignoring light brightness info from tuya in colour mode means setting the state yourself is necessary
             this.state.brightness = adjustedBrightness;
@@ -86,12 +98,12 @@ class MqttRGBLight extends TuyaRGBLight {
     publishMqttState() {
         const stateData = {
             state: this.on ? "ON" : "OFF",
-            brightness: (this.brightness - 25) * 255 / 230, // scale to HA brightness from Tuya brightness
+            brightness: (this.brightness - this.minBrightness) * this.maxBrightness / (this.maxBrightness - this.minBrightness), // scale to HA brightness from Tuya brightness
             color_mode: "hs",
             
             color: {
                 h: this.state.color.h,
-                s: this.state.color.s / 2.55 // 0 - 100
+                s: this.state.color.s / (this.maxBrightness / 100) // 0 - 100
             }
         };
 
@@ -106,6 +118,12 @@ class MqttRGBLight extends TuyaRGBLight {
             unique_id: this.deviceId,
             platform: "mqtt",
             schema: "json",
+
+            device: {
+                name: this.deviceName,
+                identifiers: this.deviceId,
+                connections: [["ip", this.device.device.ip]],
+            },
 
             state_topic: this.mqttStateTopic,
             command_topic: this.mqttCommandTopic,

@@ -56,10 +56,20 @@ class RGBLight extends TuyaSwitch {
         
         this.device.on('dp-refresh', data => this.onRefresh(data));
 
+        this.dpsMap = {
+            power: "1",
+            mode: "2",
+            brightness: "3",
+            color: "5",
+        };
+
+        this.minBrightness = 25;
+        this.maxBrightness = 255;
+
         this.state = { 
             available: false,
             on: false,
-            brightness: 25, // min brightness 25
+            brightness: this.minBrightness,
             mode: 'white',
             color: { h: 0, s: 0 }
         }
@@ -83,14 +93,14 @@ class RGBLight extends TuyaSwitch {
 
     // NOTE: setting brightness on dps 3 will change color to white mode
     async setBrightness(val) {
-        val = clamp(Math.floor(val), 25, 255);
+        val = clamp(Math.floor(val), this.minBrightness, this.maxBrightness);
 
         if(val == this.brightness) return;
 
         // ignoring light brightness info from tuya in colour mode means setting the state yourself is necessary
         this.state.brightness = val;
 
-        return this.device.set({ dps: 3, set: val });
+        return this.device.set({ dps: this.dpsMap['brightness'], set: val });
     }
 
     async setMode(mode) {
@@ -99,7 +109,7 @@ class RGBLight extends TuyaSwitch {
         if(mode == this.mode) return;
         else if(mode != 'colour' && mode != 'white') return console.log(`${this.deviceName} INVALID COLOR MODE: ${mode}`);
 
-        return this.device.set({ dps: 2, set: mode });
+        return this.device.set({ dps: this.dpsMap['mode'], set: mode });
     }
 
     async setColor(col) {
@@ -110,7 +120,7 @@ class RGBLight extends TuyaSwitch {
 
         if(this.mode == 'colour' && col.h == this.state.color.h && col.s == this.state.color.s) return;
 
-        return this.device.set({ dps: 5, set: toTuyaHex(col, this.brightness) });
+        return this.device.set({ dps: this.dpsMap['color'], set: toTuyaHex(col, this.brightness) });
     }
 
     // TODO: test the set functions
@@ -125,18 +135,21 @@ class RGBLight extends TuyaSwitch {
 
     onRefresh(data) {
         const dps = data.dps;
+        const { mode, brightness, color } = this.dpsMap;
 
-        if('2' in dps) this.state.mode = dps['2'];
+        if(mode in dps) this.state.mode = dps[mode];
 
         // use stored brightness in colour mode
-        if('3' in dps && this.mode == 'white') this.state.brightness = dps['3'];
+        if(brightness in dps && this.mode == 'white') this.state.brightness = dps[brightness];
 
         // prevent sending color data on first get
-        if('5' in dps && this.mode == 'colour') this.state.color = extractHueSat(dps['5']);
+        if(color in dps && this.mode == 'colour') this.state.color = extractHueSat(dps[color]);
     }
 
     onData(data, cmd) {
-        if('1' in data.dps) this.state.on = data.dps['1'];
+        const { power } = this.dpsMap;
+
+        if(power in data.dps) this.state.on = data.dps[power];
 
         // cmd == 10 is true on first call after connect
         if(cmd == 10) this.onRefresh(data);

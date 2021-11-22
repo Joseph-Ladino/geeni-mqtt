@@ -63,7 +63,7 @@ class TuyaGeneric {
 
     _onDisconnected() {      
         this.state.available = false;
-        this.attemptReconnect();
+        //this.attemptReconnect();
     }
 
     _onConnected() {
