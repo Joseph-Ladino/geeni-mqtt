@@ -60,7 +60,7 @@ class MqttSwitch extends TuyaSwitch {
     }
 
     publishMqttState() {
-        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF");
+        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF", { retain: true });
     }
 
     publishMqttDiscovery() {

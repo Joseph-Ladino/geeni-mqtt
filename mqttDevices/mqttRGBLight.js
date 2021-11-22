@@ -133,7 +133,7 @@ class MqttRGBLight extends TuyaRGBLight {
             supported_color_modes: ["hs"],
         };
 
-        client.publish(configTopic, JSON.stringify(configData));
+        client.publish(configTopic, JSON.stringify(configData), { retain: true });
     }
 }
 

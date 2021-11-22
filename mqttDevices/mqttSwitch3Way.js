@@ -52,7 +52,7 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
     }
 
     publishMqttState() {
-        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF");
+        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF", { retain: true });
     }
 
     publishMqttDiscovery() {
