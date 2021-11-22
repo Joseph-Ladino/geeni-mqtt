@@ -1,6 +1,6 @@
 const { readFileSync } = require("fs");
 
-// const TuyaDevice = require("./tuyaDevices");
+const TuyaDevice = require("./tuyaDevices");
 const MqttDevices = require("./mqttDevices");
 const MqttClient = MqttDevices.client;
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
@@ -26,15 +26,18 @@ var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", true);
 var dadLamp = new RGBLight(myDevices.deskLamp.id, myDevices.deskLamp.key, "dad lamp", true);
 var jamesLamp = new RGBLight(myDevices.jamesLamp.id, myDevices.jamesLamp.key, "night light", true);
 
+var robovac = new TuyaDevice.Ionvac(myDevices.robovac.id, myDevices.robovac.key, "robovac");
+
 var devices = [
-    jamesLights,
-    mainLights,
-    overheadLights,
-    jamesLamp,
-    dadLamp,
-    lamp,
-    monitorPlug,
-    fanPlug
+    // jamesLights,
+    // mainLights,
+    // overheadLights,
+    // jamesLamp,
+    // dadLamp,
+    // lamp,
+    // monitorPlug,
+    // fanPlug
+    robovac
 ]
 
 function main() {

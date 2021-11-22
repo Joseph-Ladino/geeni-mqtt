@@ -4,4 +4,5 @@ module.exports = {
     Switch3Way: require("./mqttSwitch3Way"),
     RGBLight: require("./mqttRGBLight"),
     Plug: require("./mqttPlug"),
+    Ionvac: require("./mqttIonvac"),
 };

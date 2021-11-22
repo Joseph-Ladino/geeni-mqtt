@@ -77,6 +77,8 @@ class TuyaGeneric {
     onError(err) {
         console.log(`${this.deviceName}: ERROR WHILE CONNECTING: ${err}`);
 
+        this.state.available = false;
+
         this.attemptReconnect();
     }
 }

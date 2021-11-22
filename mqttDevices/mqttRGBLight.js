@@ -80,7 +80,7 @@ class MqttRGBLight extends TuyaRGBLight {
     }
 
     publishMqttAvailability() {
-        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline");
+        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline", { retain: true });
     }
 
     publishMqttState() {

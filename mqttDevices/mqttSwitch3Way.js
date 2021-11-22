@@ -48,7 +48,7 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
     }
 
     publishMqttAvailability() {
-        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline");
+        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline", { retain: true });
     }
 
     publishMqttState() {

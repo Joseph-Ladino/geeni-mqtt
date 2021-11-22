@@ -10,6 +10,14 @@
             "problemMatcher": [
                 "$node-sass"
             ]
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "node ./test.js",
+            "problemMatcher": [
+                "$node-sass"
+            ]
         }
     ]
 }
