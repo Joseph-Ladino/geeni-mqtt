@@ -82,7 +82,7 @@ class MqttSwitch extends TuyaSwitch {
             payload_not_available: "offline",
         };
 
-        client.publish(configTopic, JSON.stringify(configData));
+        client.publish(configTopic, JSON.stringify(configData), { retain: true });
     }
 }
 

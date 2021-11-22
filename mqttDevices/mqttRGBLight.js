@@ -95,7 +95,7 @@ class MqttRGBLight extends TuyaRGBLight {
             }
         };
 
-        client.publish(this.mqttStateTopic, JSON.stringify(stateData));
+        client.publish(this.mqttStateTopic, JSON.stringify(stateData), { retain: true });
     }
 
     publishMqttDiscovery() {

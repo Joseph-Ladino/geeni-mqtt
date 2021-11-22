@@ -46,7 +46,7 @@ class MqttIonvac extends TuyaIonvac {
     
     onConnected() {
         console.log(`${this.deviceName}: CONNECTED TO VACUUM`);
-        // this.publishMqttDiscovery();
+        this.publishMqttDiscovery();
     }
     
     // override to ensure the state is set before publishing to mqtt
@@ -121,7 +121,7 @@ class MqttIonvac extends TuyaIonvac {
             state: this.state.fault == 0 ? this.stateConvMap[this.status] : "error",
         };
 
-        client.publish(this.mqttStateTopic, JSON.stringify(state));
+        client.publish(this.mqttStateTopic, JSON.stringify(state), { retain: true });
     }
 
     publishMqttDiscovery() {
