@@ -63,7 +63,8 @@ class TuyaGeneric {
 
     _onDisconnected() {      
         this.state.available = false;
-        //this.attemptReconnect();
+        // add a delay to prevent race conditions
+        setTimeout(_ => this.attemptReconnect(), 1000);
     }
 
     _onConnected() {
