@@ -145,7 +145,6 @@ class MqttIonvac extends TuyaIonvac {
             device: {
                 name: this.deviceName,
                 identifiers: this.deviceId,
-                connections: [["ip", this.device.device.ip]],
             },
 
             fan_speed_list: ["min", "medium", "high", "maximum"],

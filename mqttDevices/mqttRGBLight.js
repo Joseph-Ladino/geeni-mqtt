@@ -122,7 +122,6 @@ class MqttRGBLight extends TuyaRGBLight {
             device: {
                 name: this.deviceName,
                 identifiers: this.deviceId,
-                connections: [["ip", this.device.device.ip]],
             },
 
             state_topic: this.mqttStateTopic,

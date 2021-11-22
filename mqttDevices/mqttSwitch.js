@@ -73,7 +73,6 @@ class MqttSwitch extends TuyaSwitch {
             device: {
                 name: this.deviceName,
                 identifiers: this.deviceId,
-                connections: [["ip", this.device.device.ip]],
             },
 
             state_topic: this.mqttStateTopic,
