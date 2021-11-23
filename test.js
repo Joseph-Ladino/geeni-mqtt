@@ -6,22 +6,22 @@ const MqttClient = MqttDevices.client;
 
 const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
 
-var robovac = new MqttDevices.Ionvac(myDevices.robovac.id, myDevices.robovac.key, "robovac");
-var jamesBed = new TuyaDevices.RGBLight(myDevices.jamesBed.id, myDevices.jamesBed.key, "gamer bed", true);
+var robovac = new MqttDevices.Ionvac(myDevices.robovac.id, myDevices.robovac.key, "robovac", true);
+var jamesBed = new TuyaDevices.RGBLight(myDevices.jamesBed.id, myDevices.jamesBed.key, "gamer bed", false);
 var lamp = new MqttDevices.RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", false);
 
-jamesBed.dpsMap.power = "20";
-jamesBed.dpsMap.mode = "21";
-jamesBed.dpsMap.brightness = "22";
-jamesBed.dpsMap.color = "24";
+// jamesBed.dpsMap.power = "20";
+// jamesBed.dpsMap.mode = "21";
+// jamesBed.dpsMap.brightness = "22";
+// jamesBed.dpsMap.color = "24";
 
-jamesBed.minBrightness = 10;
-jamesBed.maxBrightness = 1000;
+// jamesBed.minBrightness = 10;
+// jamesBed.maxBrightness = 1000;
 
 var devices = [
-    // robovac,
-    jamesBed,
-    lamp
+    robovac,
+    // jamesBed,
+    // lamp
 ]
 
 async function main() {

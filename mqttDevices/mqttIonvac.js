@@ -94,9 +94,43 @@ class MqttIonvac extends TuyaIonvac {
         }
     }
 
+    handleMqttSendCommand(payload) {
+        // if it can be parsed as json, it has parameters
+        let json;
+        try {
+            json = JSON.parse(payload);
+        } catch {
+            json = { "command": payload }; 
+        }
+
+        // [set_volume(volume=int), set_dnd(dnd=bool), set_carpet_boost(boost=bool)]
+        switch(json.command) {
+            case "set_volume":
+                let volume = parseInt(json.volume);
+                this.setVolume(volume);
+                break;
+
+            case "set_dnd":
+            case "set_do_not_disturb":
+                let dnd = Boolean(json.dnd) || Boolean(json.do_not_disturb);
+                this.setDoNotDisturb(dnd);
+                break;
+
+            case "set_boost":
+            case "set_carpet_boost":
+                let boost = Boolean(json.boost) || Boolean(json.carpet_boost);
+                this.setCarpetBoost(boost);
+                break;
+
+            default:
+                console.log(`${this.deviceName}: UNKNOWN SEND_COMMAND: ${json}`);
+                break;
+        }
+    }
+
     async onMqttMessage(topic, msg) {
         msg = msg.toString();
-        // console.log(topic, msg);
+        console.log(topic, msg);
 
         switch(topic) {
             case this.mqttSetFanSpeedTopic:
@@ -108,11 +142,30 @@ class MqttIonvac extends TuyaIonvac {
             case this.mqttCommandTopic:
                 this.handleMqttCommand(msg);
                 break;
+
+            case this.mqttSendCommandTopic:
+                this.handleMqttSendCommand(msg);                
+                break;
         }
     }
 
     publishMqttAvailability() {
-        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline", { retain: true });
+        client.publish(this.mqttAvailabilityTopic, this.available ? "online" : "offline");
+    }
+
+    publishMqttAttributes() {
+        let attr = {
+            volume: this.volume,
+            do_not_disturb: this.state.do_not_disturb,
+            carpet_boost: this.state.carpet_boost,
+            filter_health: this.state.filter_health,
+            edge_brush_health: this.state.edge_brush_health,
+            roll_brush_health: this.state.roll_brush_health,
+
+            supported_custom_commands: ["set_volume", "set_dnd", "set_boost"],
+        };
+
+        client.publish(this.mqttAttributesTopic, JSON.stringify(attr), { retain: true });
     }
 
     publishMqttState() {
@@ -123,6 +176,8 @@ class MqttIonvac extends TuyaIonvac {
         };
 
         client.publish(this.mqttStateTopic, JSON.stringify(state), { retain: true });
+
+        this.publishMqttAttributes();
     }
 
     publishMqttDiscovery() {
@@ -138,9 +193,10 @@ class MqttIonvac extends TuyaIonvac {
             state_topic: this.mqttStateTopic,
             command_topic: this.mqttCommandTopic,
             availability_topic: this.mqttAvailabilityTopic,
-            // send_command_topic: this.mqttSendCommandTopic,
+            send_command_topic: this.mqttSendCommandTopic,
             set_fan_speed_topic: this.mqttSetFanSpeedTopic,
-            // json_attributes_topic: this.mqttAttributesTopic,
+            json_attributes_topic: this.mqttAttributesTopic,
+            json_attributes_template: "{{ value_json | tojson }}",
 
             device: {
                 name: this.deviceName,
@@ -148,9 +204,7 @@ class MqttIonvac extends TuyaIonvac {
             },
 
             fan_speed_list: ["min", "medium", "high", "maximum"],
-            supported_features: ["start", "stop", "pause", "return_home", "battery", "status", "locate", "clean_spot", "fan_speed", 
-            // "send_command"
-            ],
+            supported_features: ["start", "stop", "pause", "return_home", "battery", "status", "locate", "clean_spot", "fan_speed", "send_command"],
         };
 
         client.publish(configTopic, JSON.stringify(configData), { retain: true });
