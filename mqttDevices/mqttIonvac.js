@@ -200,7 +200,7 @@ class MqttIonvac extends TuyaIonvac {
 
             device: {
                 name: this.deviceName,
-                manufactureer: "Ionvac",
+                manufacturer: "Ionvac",
                 model: "Smartclean v4",
                 identifiers: this.deviceId,
             },
