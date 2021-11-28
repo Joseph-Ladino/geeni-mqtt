@@ -64,6 +64,8 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
             
             device: {
                 name: this.deviceName,
+                manufacturer: "Tuya",
+                model: "3 Way Switch",
                 identifiers: this.deviceId,
             },
 

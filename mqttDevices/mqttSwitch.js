@@ -72,6 +72,8 @@ class MqttSwitch extends TuyaSwitch {
 
             device: {
                 name: this.deviceName,
+                manufacturer: "Tuya",
+                model: "Switch",
                 identifiers: this.deviceId,
             },
 

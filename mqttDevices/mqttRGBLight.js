@@ -121,6 +121,8 @@ class MqttRGBLight extends TuyaRGBLight {
 
             device: {
                 name: this.deviceName,
+                manufacturer: "Tuya",
+                model: "RGB Light",
                 identifiers: this.deviceId,
             },
 
