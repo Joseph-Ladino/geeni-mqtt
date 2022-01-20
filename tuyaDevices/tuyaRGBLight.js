@@ -177,7 +177,9 @@ class RGBLight extends TuyaSwitch {
 
     onRefresh(data) {
         const dps = data.dps;
-        const { mode, brightness, color } = this.dpsMap;
+        const { power, mode, brightness, color } = this.dpsMap;
+
+        if(power in data.dps) this.state.on = data.dps[power];
 
         if(mode in dps) this.state.mode = dps[mode];
 

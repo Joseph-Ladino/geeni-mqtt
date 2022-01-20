@@ -25,10 +25,10 @@ var devicesO = {
     // monitorPlug: new Plug(myDevices.monitor.id, myDevices.monitor.key, "monitor", true),
     // fanPlug: new Plug(myDevices.fan.id, myDevices.fan.key, "fan", true),
     // robovac: new Ionvac(myDevices.robovac.id, myDevices.robovac.key, "robovac", true),
-    // // tempPlug1: new Plug(myDevices['tempPlug1'].id, myDevices['tempPlug1'].key, "temp plug 1", true),
+    // tempPlug1: new Plug(myDevices['tempPlug1'].id, myDevices['tempPlug1'].key, "temp plug 1", true),
     // chargingStation: new Plug(myDevices.chargingStation.id, myDevices.chargingStation.key, "charging station", true),
     downstairsLamp: new RGBLight(myDevices.downstairsLamp.id, myDevices.downstairsLamp.key, "downstairs lamp", true, true),
-    // jamesBed: new RGBLight(myDevices.jamesBed.id, myDevices.jamesBed.key, "downstairs lamp", true, true),
+    // jamesBed: new RGBLight(myDevices.jamesBed.id, myDevices.jamesBed.key, "james bed", true, true),
 }
 
 async function main() {
