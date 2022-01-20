@@ -6,7 +6,7 @@ class MqttIonvac extends TuyaIonvac {
         super(deviceId, deviceKey, deviceName);
         
         this.mqttIcon = "mdi:robot-vacuum";
-        this.mqttBaseTopic = `homeassistant/vacuum/${this.deviceName.replace(' ', "_")}`;
+        this.mqttBaseTopic = `homeassistant/vacuum/${this.deviceName.replace(/ /g, "_")}`;
         this.mqttStateTopic = this.mqttBaseTopic + "/state";
         this.mqttCommandTopic = this.mqttStateTopic + "/set";
         this.mqttSendCommandTopic = this.mqttStateTopic + "/send";
@@ -122,6 +122,10 @@ class MqttIonvac extends TuyaIonvac {
                 this.setCarpetBoost(boost);
                 break;
 
+            case "clean_mode":
+                this.setMode(json.mode);
+                break;
+
             default:
                 console.log(`${this.deviceName}: UNKNOWN SEND_COMMAND: ${json}`);
                 break;
@@ -130,7 +134,7 @@ class MqttIonvac extends TuyaIonvac {
 
     async onMqttMessage(topic, msg) {
         msg = msg.toString();
-        console.log(topic, msg);
+        // console.log(topic, msg);
 
         switch(topic) {
             case this.mqttSetFanSpeedTopic:
@@ -162,7 +166,7 @@ class MqttIonvac extends TuyaIonvac {
             edge_brush_health: this.state.edge_brush_health,
             roll_brush_health: this.state.roll_brush_health,
 
-            supported_custom_commands: ["set_volume", "set_dnd", "set_boost"],
+            supported_custom_commands: ["set_volume", "set_dnd", "set_boost", "clean_mode"],
         };
 
         client.publish(this.mqttAttributesTopic, JSON.stringify(attr), { retain: true });
@@ -175,7 +179,7 @@ class MqttIonvac extends TuyaIonvac {
             state: this.state.fault == 0 ? this.stateConvMap[this.status] : "error",
         };
 
-        client.publish(this.mqttStateTopic, JSON.stringify(state), { retain: true });
+        client.publish(this.mqttStateTopic, JSON.stringify(state));
 
         this.publishMqttAttributes();
     }

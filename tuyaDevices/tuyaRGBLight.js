@@ -46,25 +46,67 @@ function extractHueSat(str) {
     }
 }
 
+
+// for rgb lights with v2 dps
+function toTuyaHexv2(color, brightness) {
+    const scaledSat = Math.floor(color.s * 1000 / 255);
+    const hsv = color.h.toString(16).padStart(4, '0') + scaledSat.toString(16).padStart(4, '0') + brightness.toString(16).padStart(4, '0');
+
+    return hsv;
+}
+
+function extractHueSatv2(str) {
+    return {
+        h: parseInt(str.substr(0, 4), 16), // note to self: 360 > 255 meaning hue takes 2 bytes or 4 hex chars
+        s: Math.floor(parseInt(str.substr(4, 4), 16) * 255 / 1000),
+    }
+}
+
 function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
 }
 
 class RGBLight extends TuyaSwitch {
-    constructor(deviceId, deviceKey, name = null) {
+    constructor(deviceId, deviceKey, name = null, useV2 = false) {
         super(deviceId, deviceKey, name);
         
-        this.device.on('dp-refresh', data => this.onRefresh(data));
+        this.useV2 = useV2;
 
+        this.device.on('dp-refresh', data => this.onRefresh(data));
+        
         this.dpsMap = {
-            power: "1",
-            mode: "2",
-            brightness: "3",
-            color: "5",
-        };
+                power: "1",
+                mode: "2",
+                brightness: "3",
+                color: "5",
+            };
 
         this.minBrightness = 25;
         this.maxBrightness = 255;
+
+        this.functions = {
+            toTuyaHex: toTuyaHex,
+            extractHueSat: extractHueSat
+        };
+
+        if(useV2) {
+            this.dpsMap = {
+                power: "20",
+                mode: "21",
+                brightness: "22",
+                color: "24",
+            }
+            
+            this.functions.toTuyaHex = toTuyaHexv2;
+            this.functions.extractHueSat = extractHueSatv2;
+
+            this.v1MinBrightness = this.minBrightness;
+            this.v1MaxBrightness = this.maxBrightness;
+
+            this.minBrightness = 10;
+            this.maxBrightness = 1000;
+        }
+
 
         this.state = { 
             available: false,
@@ -113,14 +155,14 @@ class RGBLight extends TuyaSwitch {
     }
 
     async setColor(col) {
-        if('v' in col) await this.setBrightness(col.v);
+        if('v' in col) await this.setBrightness(!this.useV2 ? col.v : (col.v * this.maxBrightness / this.v1MaxBrightness));
         
         col.h = clamp(Math.floor(col.h), 0, 360);
         col.s = clamp(Math.floor(col.s), 0, 255);
 
         if(this.mode == 'colour' && col.h == this.state.color.h && col.s == this.state.color.s) return;
 
-        return this.device.set({ dps: this.dpsMap['color'], set: toTuyaHex(col, this.brightness) });
+        return this.device.set({ dps: this.dpsMap['color'], set: this.functions.toTuyaHex(col, this.brightness) });
     }
 
     // TODO: test the set functions
@@ -143,7 +185,7 @@ class RGBLight extends TuyaSwitch {
         if(brightness in dps && this.mode == 'white') this.state.brightness = dps[brightness];
 
         // prevent sending color data on first get
-        if(color in dps && this.mode == 'colour') this.state.color = extractHueSat(dps[color]);
+        if(color in dps && this.mode == 'colour') this.state.color = this.functions.extractHueSat(dps[color]);
     }
 
     onData(data, cmd) {

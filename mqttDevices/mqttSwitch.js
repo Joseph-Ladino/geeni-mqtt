@@ -6,7 +6,7 @@ class MqttSwitch extends TuyaSwitch {
         super(deviceId, deviceKey, deviceName);
 
         this.mqttIcon = "mdi:light-switch";
-        this.mqttBaseTopic = `homeassistant/switch/${this.deviceName.replace(' ', "_")}`;
+        this.mqttBaseTopic = `homeassistant/switch/${this.deviceName.replace(/ /g, "_")}`;
         this.mqttStateTopic = this.mqttBaseTopic + "/state";
         this.mqttCommandTopic = this.mqttStateTopic + "/set";
         this.mqttAvailabilityTopic = this.mqttStateTopic + "/available";
@@ -60,7 +60,7 @@ class MqttSwitch extends TuyaSwitch {
     }
 
     publishMqttState() {
-        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF", { retain: true });
+        client.publish(this.mqttStateTopic, this.on ? "ON" : "OFF");
     }
 
     publishMqttDiscovery() {
