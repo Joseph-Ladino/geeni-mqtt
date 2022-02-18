@@ -193,8 +193,8 @@ class RGBLight extends TuyaSwitch {
     onData(data, cmd) {
         const { power } = this.dpsMap;
 
-        // fixes random bug data = undefined bug
-        if(!data) return;
+        // fixes random bug data.dps = undefined bug
+        if(!data || !data.dps) return;
 
         if(power in data.dps) this.state.on = data.dps[power];
 
