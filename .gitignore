@@ -4,3 +4,4 @@ my_devices.conf
 mqttauto.service
 launch.sh
 launch.js
+my_devices_r2.conf

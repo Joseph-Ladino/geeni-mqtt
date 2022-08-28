@@ -6,10 +6,19 @@ class TuyaGeneric {
         this.deviceKey = deviceKey;
         this.deviceName = deviceName || deviceId;
 
-        this.device = new TuyaDevice({
-            id: deviceId,
-            key: deviceKey
-        });
+        try {
+            this.device = new TuyaDevice({
+                id: deviceId,
+                key: deviceKey
+            });
+        } catch(err) {
+            let tempFunc = function() {`${deviceName}: NOT CONFIGURED PROPERLY`; return new Promise()};
+            this.device = {
+                on: tempFunc,
+                find: tempFunc,
+            }
+            console.log(err.message);
+        }
         
         this.device.on('disconnected', _ =>  this.onDisconnected());  // class specific handler that is CALLED FIRST for logging/extras
         this.device.on('disconnected', _ => this._onDisconnected());  // background handler to adjust availability state and handle reconnecting

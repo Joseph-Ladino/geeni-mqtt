@@ -1,6 +1,45 @@
 {
-    "name": {
-        "id": "tuya device id",
-        "key": "tuya device key",
+    "plugs": {
+        "name": {
+            "id": "id",
+            "key": "key",
+            "disabled": false/true // optional
+        }
+    },
+    "switches": {
+        "name": {
+            "id": "id",
+            "key": "key",
+            "disabled": false/true // optional
+        }
+    },
+    "switches3": {
+        "name": [
+            {
+                "id1": "id1",
+                "key1": "key1",
+                "disabled": false/true // optional
+            },
+            {
+                "id2": "id2",
+                "key2": "key2",
+                "disabled": false/true // optional
+            }
+        ]
+    },
+    "lights": {
+        "name": {
+            "id": "id",
+            "key": "key",
+            "v2": false/true, // optional
+            "disabled": false/true // optional
+        }
+    },
+    "ionvac": {
+        "name": {
+            "id": "id",
+            "key": "key",
+            "disabled": false/true // optional
+        }
     }
 }

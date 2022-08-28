@@ -1,49 +1,69 @@
 const { readFileSync } = require("fs");
+const { client } = require("./mqttDevices");
 
-const TuyaDevice = require("./tuyaDevices");
+// const TuyaDevice = require("./tuyaDevices");
 const MqttDevices = require("./mqttDevices");
 const MqttClient = MqttDevices.client;
-const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
-const {Plug, Switch, Switch3Way, RGBLight} = MqttDevices;
+// const myDevices = JSON.parse(readFileSync("./my_devices.conf"));
+const myDevices = JSON.parse(readFileSync("./my_devices_r2.conf"));
+const { Plug, Switch, Switch3Way, RGBLight, Ionvac } = MqttDevices;
 
+client.setMaxListeners(25);
 
-var mainLights = new Switch(myDevices.mainLights.id, myDevices.mainLights.key, "main lights", true);
-var overheadLights = new Switch(myDevices.overheadLights.id, myDevices.overheadLights.key, "overhead lights", true);
+var devices = {};
+var discover = false;
+// constructs objects for devices with generic constructor
+function loadDevicesJSONGeneric(data, type) {
+    let DeviceClass;
+    switch (type) {
+        case "switches":
+            DeviceClass = Switch;
+            break;
 
-var monitorPlug = new Plug(myDevices.monitor.id, myDevices.monitor.key, "monitor", true);
-var fanPlug = new Plug(myDevices.fan.id, myDevices.fan.key, "fan", true);
+        case "plugs":
+            DeviceClass = Plug;
+            break;
 
-var jamesLights = new Switch3Way(
-    myDevices.jamesSwitch1.id,
-    myDevices.jamesSwitch1.key,
-    myDevices.jamesSwitch2.id, 
-    myDevices.jamesSwitch2.key, 
-    "james lights",
-    true
-);
+        case "ionvac":
+            DeviceClass = Ionvac;
+            break;
 
-var lamp = new RGBLight(myDevices.lamp.id, myDevices.lamp.key, "lamp", true);
-var dadLamp = new RGBLight(myDevices.deskLamp.id, myDevices.deskLamp.key, "dad lamp", true);
-var jamesLamp = new RGBLight(myDevices.jamesLamp.id, myDevices.jamesLamp.key, "night light", true);
+        // exit for all other types
+        default:
+            return;
+    }
 
-var robovac = new TuyaDevice.Ionvac(myDevices.robovac.id, myDevices.robovac.key, "robovac");
+    for (let d in data[type]) {
+        let dv = data[type][d];
 
-var devices = [
-    // jamesLights,
-    // mainLights,
-    // overheadLights,
-    // jamesLamp,
-    // dadLamp,
-    // lamp,
-    // monitorPlug,
-    // fanPlug
-    robovac
-]
+        devices[d] = new DeviceClass(dv.id, dv.key, d, true);
+    }
+}
+
+// construct objects from data.[type].[device name]
+function loadDevicesFromJSON2(data) {
+
+    loadDevicesJSONGeneric(data, "plugs");
+    loadDevicesJSONGeneric(data, "switches");
+    loadDevicesJSONGeneric(data, "ionvac");
+
+    for (let s3 in data.switches3) {
+        let sw3 = data.switches3[s3];
+        devices[s3] = new Switch3Way(sw3[0].id, sw3[0].key, sw3[1].id, sw3[1].key, s3, discover);
+    }
+
+    for (let l in data.lights) {
+        let lt = data.lights[l];
+        
+        // creates v2 light if "v2" prop is in config and it's set to true
+        devices[l] = new RGBLight(lt.id, lt.key, l, ("v2" in lt && lt.v2 === true), discover);
+    }
+}
+
+loadDevicesFromJSON2(myDevices);
 
 function main() {
-    for(var d of devices) {
-        d.connect();
-    }
+    for (let d in devices) devices[d].connect();
 }
 
 MqttClient.on('connect', _ => main());
