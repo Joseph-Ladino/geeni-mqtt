@@ -48,6 +48,7 @@ class Switch extends TuyaGeneric {
     }
 
     onData(data) {
+        if(!data.dps) return;
         this.state.on = data.dps['1'];
     }
 }

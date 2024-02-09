@@ -40,7 +40,8 @@ class MqttSwitch extends TuyaSwitch {
     }
 
     onData(data) {
-        if('1' in data.dps) this.state.on = data.dps['1'];
+        if(!this.device.isConnected()) return this._onDisconnected();
+        if(data.dps && '1' in data.dps) this.state.on = data.dps['1'];
         this.publishMqttState();
     }
 
