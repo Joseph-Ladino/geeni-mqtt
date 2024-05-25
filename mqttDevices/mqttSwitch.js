@@ -68,7 +68,7 @@ class MqttSwitch extends TuyaSwitch {
         const configTopic = this.mqttBaseTopic + "/config";
 
         const configData = {
-            name: this.deviceName,
+            name: null, //this.deviceName,
             unique_id: this.deviceId,
 
             device: {

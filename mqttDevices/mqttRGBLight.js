@@ -113,7 +113,7 @@ class MqttRGBLight extends TuyaRGBLight {
         const configTopic = this.mqttBaseTopic + "/config";
 
         const configData = {
-            name: this.deviceName,
+            name: null, //this.deviceName,
             unique_id: this.deviceId,
             platform: "mqtt",
             schema: "json",

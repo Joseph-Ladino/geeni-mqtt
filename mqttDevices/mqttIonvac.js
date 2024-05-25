@@ -190,7 +190,7 @@ class MqttIonvac extends TuyaIonvac {
         const configData = {
             platform: "mqtt",
             schema: "state",
-            name: this.deviceName,
+            name: null, //this.deviceName,
             unique_id: this.deviceId,
             icon: this.mqttIcon,
             

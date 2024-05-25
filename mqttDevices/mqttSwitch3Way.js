@@ -59,7 +59,7 @@ class MqttSwitch3Way extends TuyaSwitch3Way {
         const configTopic = this.mqttBaseTopic + "/config";
 
         const configData = {
-            name: this.deviceName,
+            name: null, //this.deviceName,
             unique_id: this.deviceId,
             
             device: {
