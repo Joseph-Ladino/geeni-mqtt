@@ -1,10 +1,10 @@
-const fs = require('fs')
-const path = require('path')
-const color = require('ansicolors')
-const { promisify } = require('util')
-const glob = promisify(require('glob'))
-const readFile = promisify(fs.readFile)
-const BaseCommand = require('../base-command.js')
+const { readFile } = require('node:fs/promises')
+const path = require('node:path')
+const { glob } = require('glob')
+const { output } = require('proc-log')
+const BaseCommand = require('../base-cmd.js')
+
+const globify = pattern => pattern.split('\\').join('/')
 
 class HelpSearch extends BaseCommand {
   static description = 'Search npm help documentation'
@@ -17,15 +17,17 @@ class HelpSearch extends BaseCommand {
       throw this.usageError()
     }
 
-    const docPath = path.resolve(__dirname, '..', '..', 'docs/content')
-    const files = await glob(`${docPath}/*/*.md`)
+    const docPath = path.resolve(this.npm.npmRoot, 'docs/content')
+    let files = await glob(`${globify(docPath)}/*/*.md`)
+    // preserve glob@8 behavior
+    files = files.sort((a, b) => a.localeCompare(b, 'en'))
     const data = await this.readFiles(files)
-    const results = await this.searchFiles(args, data, files)
+    const results = await this.searchFiles(args, data)
     const formatted = this.formatResults(args, results)
     if (!formatted.trim()) {
-      this.npm.output(`No matches in help for: ${args.join(' ')}\n`)
+      output.standard(`No matches in help for: ${args.join(' ')}\n`)
     } else {
-      this.npm.output(formatted)
+      output.standard(formatted)
     }
   }
 
@@ -38,7 +40,7 @@ class HelpSearch extends BaseCommand {
     return res
   }
 
-  async searchFiles (args, data, files) {
+  async searchFiles (args, data) {
     const results = []
     for (const [file, content] of Object.entries(data)) {
       const lowerCase = content.toLowerCase()
@@ -139,7 +141,7 @@ class HelpSearch extends BaseCommand {
   formatResults (args, results) {
     const cols = Math.min(process.stdout.columns || Infinity, 80) + 1
 
-    const out = results.map(res => {
+    const formattedOutput = results.map(res => {
       const out = [res.cmd]
       const r = Object.keys(res.hits)
         .map(k => `${k}:${res.hits[k]}`)
@@ -161,19 +163,14 @@ class HelpSearch extends BaseCommand {
           return
         }
 
-        if (!this.npm.color) {
-          out.push(line + '\n')
-          return
-        }
         const hilitLine = []
         for (const arg of args) {
           const finder = line.toLowerCase().split(arg.toLowerCase())
           let p = 0
           for (const f of finder) {
-            hilitLine.push(line.substr(p, f.length))
-            const word = line.substr(p + f.length, arg.length)
-            const hilit = color.bgBlack(color.red(word))
-            hilitLine.push(hilit)
+            hilitLine.push(line.slice(p, p + f.length))
+            const word = line.slice(p + f.length, p + f.length + arg.length)
+            hilitLine.push(this.npm.chalk.blue(word))
             p += f.length + arg.length
           }
         }
@@ -186,12 +183,13 @@ class HelpSearch extends BaseCommand {
     const finalOut = results.length && !this.npm.config.get('long')
       ? 'Top hits for ' + (args.map(JSON.stringify).join(' ')) + '\n' +
       '—'.repeat(cols - 1) + '\n' +
-      out + '\n' +
+      formattedOutput + '\n' +
       '—'.repeat(cols - 1) + '\n' +
       '(run with -l or --long to see more context)'
-      : out
+      : formattedOutput
 
     return finalOut.trim()
   }
 }
+
 module.exports = HelpSearch

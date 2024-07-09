@@ -1,40 +1,18 @@
-const Minipass = require('minipass')
 const Pipeline = require('minipass-pipeline')
 const libSearch = require('libnpmsearch')
-const log = require('../utils/log-shim.js')
+const { log, output } = require('proc-log')
+const formatSearchStream = require('../utils/format-search-stream.js')
+const BaseCommand = require('../base-cmd.js')
 
-const formatPackageStream = require('../search/format-package-stream.js')
-const packageFilter = require('../search/package-filter.js')
-
-function prepareIncludes (args) {
-  return args
-    .map(s => s.toLowerCase())
-    .filter(s => s)
-}
-
-function prepareExcludes (searchexclude) {
-  var exclude
-  if (typeof searchexclude === 'string') {
-    exclude = searchexclude.split(/\s+/)
-  } else {
-    exclude = []
-  }
-
-  return exclude
-    .map(s => s.toLowerCase())
-    .filter(s => s)
-}
-
-const BaseCommand = require('../base-command.js')
 class Search extends BaseCommand {
   static description = 'Search for packages'
   static name = 'search'
   static params = [
-    'long',
     'json',
     'color',
     'parseable',
     'description',
+    'searchlimit',
     'searchopts',
     'searchexclude',
     'registry',
@@ -43,14 +21,14 @@ class Search extends BaseCommand {
     'offline',
   ]
 
-  static usage = ['[search terms ...]']
+  static usage = ['<search term> [<search term> ...]']
 
   async exec (args) {
     const opts = {
       ...this.npm.flatOptions,
       ...this.npm.flatOptions.search,
-      include: prepareIncludes(args),
-      exclude: prepareExcludes(this.npm.flatOptions.search.exclude),
+      include: args.map(s => s.toLowerCase()).filter(Boolean),
+      exclude: this.npm.flatOptions.search.exclude.split(/\s+/),
     }
 
     if (opts.include.length === 0) {
@@ -60,27 +38,16 @@ class Search extends BaseCommand {
     // Used later to figure out whether we had any packages go out
     let anyOutput = false
 
-    class FilterStream extends Minipass {
-      write (pkg) {
-        if (packageFilter(pkg, opts.include, opts.exclude)) {
-          super.write(pkg)
-        }
-      }
-    }
-
-    const filterStream = new FilterStream()
-
-    // Grab a configured output stream that will spit out packages in the
-    // desired format.
-    const outputStream = formatPackageStream({
+    // Grab a configured output stream that will spit out packages in the desired format.
+    const outputStream = formatSearchStream({
       args, // --searchinclude options are not highlighted
       ...opts,
+      npm: this.npm,
     })
 
     log.silly('search', 'searching packages')
     const p = new Pipeline(
       libSearch.stream(opts.include, opts),
-      filterStream,
       outputStream
     )
 
@@ -88,16 +55,16 @@ class Search extends BaseCommand {
       if (!anyOutput) {
         anyOutput = true
       }
-      this.npm.output(chunk.toString('utf8'))
+      output.standard(chunk.toString('utf8'))
     })
 
     await p.promise()
     if (!anyOutput && !this.npm.config.get('json') && !this.npm.config.get('parseable')) {
-      this.npm.output('No matches found for ' + (args.map(JSON.stringify).join(' ')))
+      output.standard('No matches found for ' + (args.map(JSON.stringify).join(' ')))
     }
 
     log.silly('search', 'search completed')
-    log.clearProgress()
   }
 }
+
 module.exports = Search

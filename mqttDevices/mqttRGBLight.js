@@ -54,10 +54,11 @@ class MqttRGBLight extends TuyaRGBLight {
             data[power] = payload.state == "ON";
 
             // map HA brightness to Tuya brightness 
+            // note HA brightness will always be on a 0-255 scale
             const adjustedBrightness = ('brightness' in payload) 
             ? TuyaRGBLight.clamp(
-                Math.floor(
-                    (payload.brightness) * (this.maxBrightness - this.minBrightness) / this.maxBrightness + this.minBrightness),
+                Math.round(
+                    (payload.brightness) * (this.maxBrightness - this.minBrightness) / 255 + this.minBrightness),
                     this.minBrightness,
                     this.maxBrightness
                 )
@@ -78,6 +79,8 @@ class MqttRGBLight extends TuyaRGBLight {
             // ignoring light brightness info from tuya in colour mode means setting the state yourself is necessary
             this.state.brightness = adjustedBrightness;
 
+            // if(this.useV2) console.log(`SETTING DEVICE WITH BRIGHTNESS ${adjustedBrightness}, USING RANGE(${this.minBrightness}, ${this.maxBrightness})`);
+
             this.device.set({
                 multiple: true,
                 data: data
@@ -97,7 +100,7 @@ class MqttRGBLight extends TuyaRGBLight {
     publishMqttState() {
         const stateData = {
             state: this.on ? "ON" : "OFF",
-            brightness: (this.brightness - this.minBrightness) * this.maxBrightness / (this.maxBrightness - this.minBrightness), // scale to HA brightness from Tuya brightness
+            brightness: Math.round((this.brightness - this.minBrightness) * 255 / (this.maxBrightness - this.minBrightness)), // scale to HA brightness from Tuya brightness
             color_mode: "hs",
             
             color: {
